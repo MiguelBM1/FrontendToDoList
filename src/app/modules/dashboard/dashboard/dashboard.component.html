@@ -1,0 +1,207 @@
+<div class="container-fluid">
+  <app-page-title
+  title="Tareas"
+  [breadcrumbItems]="breadCrumbItems"
+></app-page-title>
+
+<div class="row">
+  <div class="col-3">
+    <label for="filtroEstado" class="form-label">Filtrar por Estado</label>
+    <select class="form-select" id="filtroEstado" [(ngModel)]="filtroEstado">
+      <option value="">Todos</option>
+      <option *ngFor="let estado of estados" [value]="estado.idEstado">{{ estado.nombre }}</option>
+    </select>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-8-end">
+    <div class="text-sm-end">
+      <button
+        type="button"
+        class="btn btn-success btn-rounded mb-2 me-2"
+        (click)="paraAgregar(content)"
+      >
+        <i class="mdi mdi-plus mr-1"></i>
+        Agregar
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-6" *ngFor="let task of filtrarTareasPorEstado(filtroEstado); let i = index;">
+    <div class="card mb-3">
+      <div class="card-body" style="max-height: 260px; overflow-y: auto; ">
+        <p class="card-title">{{ task.nombre }}</p>
+        <p class="card-text">{{ task.descripcion }}</p>
+        <p class="card-text mb-2"><strong>Persona:</strong> {{ task.persona }}</p>
+        <p class="card-text mb-2"><strong>Departamento:</strong> {{ task.departamento }}</p>
+        <p class="card-text mb-2"><strong>Fecha de Finalización:</strong> {{ task.fechaFinalizacion | date: 'dd/MM/yyyy' }}</p>
+        <p class="card-text"><strong>Estado: </strong> 
+          <button *ngIf="task.idEstado === '1'" class="btn badge rounded-pill badge-soft-warning font-size-11" (click)="paraEditarEstado(task)">{{ task.estado }}</button>
+          <button *ngIf="task.idEstado  !== '1'" class="btn badge rounded-pill badge-soft-success font-size-11" >{{ task.estado }}</button>
+        </p>
+        <button type="button" class="btn btn-primary btn-xs me-2" (click)="paraEditar(content,task)">
+          Editar
+        </button>
+        <button type="button" class="btn btn-danger btn-xs" (click)="borrarTarea(task, task.id)" >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+
+  <ng-template #content role="document" let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title mt-0">Agregar Tareas</h5>
+      <button
+        type="button"
+        class="close"
+        aria-hidden="true"
+        (click)="modal.dismiss('Cross click')"
+      >
+        ×
+      </button>
+    </div>
+  
+    <div class="modal-body">
+      <form [formGroup]="formTarea" (ngSubmit)="guardarTarea()">
+        <div class="row">
+          <div class="col-6">
+            <div class="mb-3">
+              <label class="control-label"> Nombre Tarea </label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Ingresar Nombre"
+                formControlName="nombre"
+                [class]="esCampoValido('nombre')"
+              />
+  
+              <div class="invalid-feedback">
+                <span
+                  *ngIf="formTarea.get('nombre')?.errors?.['required']"
+                >
+                  Requiere un nombre
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="mb-3">
+              <label class="control-label"> Descripcion </label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Ingrese descripcion"
+                formControlName="descripcion"
+                [class]="esCampoValido('descripcion')"
+              />
+              <div class="invalid-feedback">
+                <span
+                  *ngIf="formTarea.get('descripcion')?.errors?.['required']"
+                >
+                  Requiere una Descripcion
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <div class="row">
+          <div class="col-6">
+            <div class="mb-3">
+              <label class="control-label"> Fecha Finalizacion </label>
+              <input
+                type="date"
+                class="form-control"
+                placeholder="dd-mm-yyyy"
+                formControlName="fechaFinalizacion"
+                [class]="esCampoValido('fechaFinalizacion')"
+              />
+  
+              <div class="invalid-feedback">
+                <span
+                  *ngIf="formTarea.get('fechaFinalizacion')?.errors?.['required']"
+                >
+                  Requiere una fecha
+                </span>
+              </div>
+            </div>
+          </div>
+            <div class="col-6">
+              <div class="mb-3">
+                <label class="control-label"> Persona </label>
+                <select
+                  class="form-control form-select"
+                  id="persona"
+                [class]="esCampoValido('persona')"
+                  formControlName="persona"
+                >
+                  <option value="">Seleccione</option>
+                  <option
+                    *ngFor="let persona of personas" [value]="persona.idPersona">
+                 {{persona.codigo}} - {{persona.nombre}}</option>
+                  
+                </select>
+
+                <div class="invalid-feedback">
+                  <span
+                    *ngIf="formTarea.get('persona')?.errors?.['required']"
+                  >
+                    Requiere una Persona
+                  </span>
+                </div>
+              </div>
+            </div>
+    
+          </div>
+        
+  
+        <div class="row">
+          <div class="col-6">
+            <div class="mb-3">
+              <label class="control-label"> Estado </label>
+              <select
+                class="form-control form-select"
+                [class]="esCampoValido('estado')"
+                formControlName="estado"
+              >
+                <option value="">Seleccione</option>
+                <option *ngFor="let estado of estados" [value]="estado.idEstado">
+                  {{estado.nombre}}</option>
+
+              </select>
+              <div class="invalid-feedback">
+                <span
+                  *ngIf="formTarea.get('estado')?.errors?.['required']"
+                >
+                  Requiere una Persona
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+  
+
+  
+        <button
+          type="button"
+          class="btn btn-light"
+          (click)="modal.close('Close click')"
+        >
+          Close
+        </button>
+        <button type="submit" class="btn btn-primary" id="btn-save-event">
+          Guardar
+        </button>
+      </form>
+    </div>
+  </ng-template>
